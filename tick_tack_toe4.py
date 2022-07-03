@@ -64,7 +64,7 @@ class TickTackToe:
         self.board[position_x_dict[self.row]][position_y_dict[self.column]] = sign
         self.draw_board()
 
-    def set_sign(self, sign):
+    def player_set_sign(self):
         while True:
             row, column = input('Choose row and column').split()
             self.row = int(row) - 1
@@ -74,12 +74,17 @@ class TickTackToe:
                 continue
 
             if self.board_signs[self.row][self.column] is None:
-                self.board_signs[self.row][self.column] = sign
+                self.board_signs[self.row][self.column] = self.player_sign
                 break
             else:
                 print('This position was chosen earlier. Choose free position.')
 
-        self.draw_sign(sign)
+        self.draw_sign(self.player_sign)
+
+    def ai_set_sign(self):
+        self.row, self.column = self._find_best_move()
+        self.board_signs[self.row][self.column] = self.ai_sign
+        self.draw_sign(self.ai_sign)
 
     def check_end_of_game_case(self, sign):
         result_text = 'You win!' if sign == self.player_sign else 'You Loose!'
@@ -129,14 +134,14 @@ class TickTackToe:
                 return -10
 
         for col in range(3):
-            if self.board_signs[0][col] == self.board_signs[1][col] and\
+            if self.board_signs[0][col] == self.board_signs[1][col] and \
                     self.board_signs[1][col] == self.board_signs[2][col]:
                 if self.board_signs[0][col] == self.ai_sign:
                     return 10
                 elif self.board_signs[0][col] == self.player_sign:
                     return -10
 
-        if self.board_signs[0][0] == self.board_signs[1][1] and self.board_signs[1][1] == self.board_signs[2][2] or\
+        if self.board_signs[0][0] == self.board_signs[1][1] and self.board_signs[1][1] == self.board_signs[2][2] or \
                 self.board_signs[2][0] == self.board_signs[1][1] and self.board_signs[1][1] == self.board_signs[0][2]:
             if self.board_signs[1][1] == self.ai_sign:
                 return 10
@@ -171,7 +176,7 @@ class TickTackToe:
                         self.board_signs[row][column] = None
             return best
 
-    def find_best_move(self):
+    def _find_best_move(self):
         best_val = -1000
         best_move = (-1, -1)
         for row in range(len(self.board_signs)):
@@ -181,7 +186,7 @@ class TickTackToe:
                     move_val = self.minimax(0, False)
                     self.board_signs[row][column] = None
                     if move_val > best_val:
-                        best_move = (row + 1, column + 1)
+                        best_move = (row, column)
                         best_val = move_val
         # print(f'The value of the best move is : {best_val}')
         print(f'The best move is: {best_move}')
@@ -197,12 +202,12 @@ def main():
     player_flag = 'player'
     while not result:
         if player_flag == 'player':
-            tick_tack_toe.set_sign(tick_tack_toe.player_sign)
+            tick_tack_toe.player_set_sign()
             result = tick_tack_toe.check_end_of_game_case(tick_tack_toe.player_sign)
             player_flag = 'ai'
         else:
-            tick_tack_toe.find_best_move()
-            tick_tack_toe.set_sign(tick_tack_toe.ai_sign)
+            # tick_tack_toe.find_best_move()
+            tick_tack_toe.ai_set_sign()
             result = tick_tack_toe.check_end_of_game_case(tick_tack_toe.ai_sign)
             player_flag = 'player'
 
